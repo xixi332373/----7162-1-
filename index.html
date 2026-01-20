@@ -5,6 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Moneda Virtual Argentina - La Nueva Era Financiera</title>
     <meta name="description" content="Descubre la moneda virtual oficial de Argentina: seguridad, rapidez y accesibilidad para todos los argentinos.">
+    
+    <!-- Meta Pixel Code - 放置在head标签最上方，确保优先加载 -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '4598836910343436');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=4598836910343436&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
+
     <!-- 引入Tailwind CSS用于样式（无需本地安装） -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入Font Awesome图标 -->
@@ -105,7 +124,7 @@
                 </p>
                 <div class="flex flex-wrap gap-4">
                     <!-- WhatsApp按钮 -->
-                    <a href="https://wa.me/5491112345678" target="_blank" class="bg-whatsapp text-white font-bold py-3 px-8 rounded-lg hover:bg-whatsapp/90 transition-colors shadow-lg flex items-center gap-2 whatsapp-pulse">
+                    <a href="https://wa.me/5491112345678" target="_blank" class="bg-whatsapp text-white font-bold py-3 px-8 rounded-lg hover:bg-whatsapp/90 transition-colors shadow-lg flex items-center gap-2 whatsapp-pulse" onclick="fbq('track', 'ClickToWhatsApp');">
                         <i class="fa-brands fa-whatsapp text-xl"></i>
                         <span>Si estás interesado, contáctame por WhatsApp</span>
                     </a>
@@ -337,7 +356,7 @@
             <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-12 text-center">
                 <!-- WhatsApp 主按钮 -->
                 <div class="mb-8">
-                    <a href="https://wa.me/5491112345678" target="_blank" class="inline-flex items-center justify-center gap-3 bg-whatsapp text-white font-bold py-4 px-10 rounded-lg hover:bg-whatsapp/90 transition-colors shadow-lg text-xl whatsapp-pulse">
+                    <a href="https://wa.me/5491112345678" target="_blank" class="inline-flex items-center justify-center gap-3 bg-whatsapp text-white font-bold py-4 px-10 rounded-lg hover:bg-whatsapp/90 transition-colors shadow-lg text-xl whatsapp-pulse" onclick="fbq('track', 'ContactViaWhatsApp');">
                         <i class="fa-brands fa-whatsapp text-2xl"></i>
                         <span>Enviar Mensaje por WhatsApp</span>
                     </a>
@@ -394,7 +413,7 @@
                         La moneda digital oficial de Argentina, regulada y segura para todos los argentinos.
                     </p>
                     <div class="flex gap-4 text-xl">
-                        <a href="https://wa.me/5491112345678" target="_blank" class="hover:text-whatsapp transition-colors"><i class="fa-brands fa-whatsapp"></i></a>
+                        <a href="https://wa.me/5491112345678" target="_blank" class="hover:text-whatsapp transition-colors" onclick="fbq('track', 'ClickWhatsAppIcon');"><i class="fa-brands fa-whatsapp"></i></a>
                         <a href="#" class="hover:text-argentina-yellow transition-colors"><i class="fa-brands fa-facebook-f"></i></a>
                         <a href="#" class="hover:text-argentina-yellow transition-colors"><i class="fa-brands fa-twitter"></i></a>
                         <a href="#" class="hover:text-argentina-yellow transition-colors"><i class="fa-brands fa-instagram"></i></a>
