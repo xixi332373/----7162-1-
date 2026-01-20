@@ -123,8 +123,8 @@
                     Una solución digital segura, rápida y accesible que transforma la forma en que manejas tu dinero en Argentina.
                 </p>
                 <div class="flex flex-wrap gap-4">
-                    <!-- WhatsApp按钮 -->
-                    <a href="https://wa.me/5491112345678" target="_blank" class="bg-whatsapp text-white font-bold py-3 px-8 rounded-lg hover:bg-whatsapp/90 transition-colors shadow-lg flex items-center gap-2 whatsapp-pulse" onclick="fbq('track', 'ClickToWhatsApp');">
+                    <!-- WhatsApp按钮 - 添加唯一ID用于事件绑定 -->
+                    <a href="https://wa.me/5491112345678" target="_blank" id="heroWhatsappButton" class="bg-whatsapp text-white font-bold py-3 px-8 rounded-lg hover:bg-whatsapp/90 transition-colors shadow-lg flex items-center gap-2 whatsapp-pulse">
                         <i class="fa-brands fa-whatsapp text-xl"></i>
                         <span>Si estás interesado, contáctame por WhatsApp</span>
                     </a>
@@ -354,9 +354,9 @@
             </div>
             
             <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-12 text-center">
-                <!-- WhatsApp 主按钮 -->
+                <!-- WhatsApp 主按钮 - 添加唯一ID用于事件绑定 -->
                 <div class="mb-8">
-                    <a href="https://wa.me/5491112345678" target="_blank" class="inline-flex items-center justify-center gap-3 bg-whatsapp text-white font-bold py-4 px-10 rounded-lg hover:bg-whatsapp/90 transition-colors shadow-lg text-xl whatsapp-pulse" onclick="fbq('track', 'ContactViaWhatsApp');">
+                    <a href="https://wa.me/5491112345678" target="_blank" id="mainWhatsappButton" class="inline-flex items-center justify-center gap-3 bg-whatsapp text-white font-bold py-4 px-10 rounded-lg hover:bg-whatsapp/90 transition-colors shadow-lg text-xl whatsapp-pulse">
                         <i class="fa-brands fa-whatsapp text-2xl"></i>
                         <span>Enviar Mensaje por WhatsApp</span>
                     </a>
@@ -413,7 +413,8 @@
                         La moneda digital oficial de Argentina, regulada y segura para todos los argentinos.
                     </p>
                     <div class="flex gap-4 text-xl">
-                        <a href="https://wa.me/5491112345678" target="_blank" class="hover:text-whatsapp transition-colors" onclick="fbq('track', 'ClickWhatsAppIcon');"><i class="fa-brands fa-whatsapp"></i></a>
+                        <!-- WhatsApp图标 - 添加唯一ID用于事件绑定 -->
+                        <a href="https://wa.me/5491112345678" target="_blank" id="footerWhatsappIcon" class="hover:text-whatsapp transition-colors"><i class="fa-brands fa-whatsapp"></i></a>
                         <a href="#" class="hover:text-argentina-yellow transition-colors"><i class="fa-brands fa-facebook-f"></i></a>
                         <a href="#" class="hover:text-argentina-yellow transition-colors"><i class="fa-brands fa-twitter"></i></a>
                         <a href="#" class="hover:text-argentina-yellow transition-colors"><i class="fa-brands fa-instagram"></i></a>
@@ -468,7 +469,7 @@
         </div>
     </footer>
 
-    <!-- JavaScript -->
+    <!-- JavaScript - 事件监听代码 -->
     <script>
         // 导航栏滚动效果
         const navbar = document.getElementById('navbar');
@@ -545,6 +546,46 @@
                 }
             });
         });
+
+        // ========== 核心：添加联系按钮的事件监听 ==========
+        // 1. 英雄区WhatsApp按钮事件
+        if (document.getElementById('heroWhatsappButton')) {
+            document.getElementById('heroWhatsappButton').addEventListener('click', function() {
+                // Meta Pixel 事件代码
+                fbq('track', 'ClickToWhatsApp', {
+                    button_location: 'hero_section',
+                    currency: 'ARS',
+                    value: 0.00
+                });
+                console.log('Hero WhatsApp按钮被点击 - 事件已追踪');
+            }, false);
+        }
+
+        // 2. 联系板块主WhatsApp按钮事件
+        if (document.getElementById('mainWhatsappButton')) {
+            document.getElementById('mainWhatsappButton').addEventListener('click', function() {
+                // Meta Pixel 事件代码
+                fbq('track', 'ContactViaWhatsApp', {
+                    button_location: 'contact_section',
+                    currency: 'ARS',
+                    value: 0.00
+                });
+                console.log('主WhatsApp按钮被点击 - 事件已追踪');
+            }, false);
+        }
+
+        // 3. 页脚WhatsApp图标事件
+        if (document.getElementById('footerWhatsappIcon')) {
+            document.getElementById('footerWhatsappIcon').addEventListener('click', function() {
+                // Meta Pixel 事件代码
+                fbq('track', 'ClickWhatsAppIcon', {
+                    button_location: 'footer',
+                    currency: 'ARS',
+                    value: 0.00
+                });
+                console.log('页脚WhatsApp图标被点击 - 事件已追踪');
+            }, false);
+        }
     </script>
 </body>
 </html>
