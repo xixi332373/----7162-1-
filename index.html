@@ -6,6 +6,44 @@
     <title>Moneda Virtual Argentina - La Nueva Era Financiera</title>
     <meta name="description" content="Descubre la moneda virtual oficial de Argentina: seguridad, rapidez y accesibilidad para todos los argentinos.">
     
+    <!-- IP 地区限制 - 页面加载时立即执行 -->
+    <script>
+        // 存储页面访问状态
+        let isArgentinaIP = false;
+        
+        // 立即执行IP检查
+        (async function checkIPLocation() {
+            try {
+                // 调用IP地理定位API
+                const response = await fetch('https://ipapi.co/json/');
+                const data = await response.json();
+                
+                // 检查国家代码是否为阿根廷 (AR)
+                if (data.country_code === 'AR') {
+                    isArgentinaIP = true;
+                    // 显示页面内容
+                    document.addEventListener('DOMContentLoaded', function() {
+                        document.body.classList.remove('hidden');
+                        document.getElementById('access-restricted').classList.add('hidden');
+                    });
+                } else {
+                    // 非阿根廷IP，显示访问受限
+                    document.addEventListener('DOMContentLoaded', function() {
+                        document.body.classList.add('hidden');
+                        document.getElementById('access-restricted').classList.remove('hidden');
+                    });
+                }
+            } catch (error) {
+                console.error('IP检查失败:', error);
+                // API调用失败时的备选方案：显示访问受限
+                document.addEventListener('DOMContentLoaded', function() {
+                    document.body.classList.add('hidden');
+                    document.getElementById('access-restricted').classList.remove('hidden');
+                });
+            }
+        })();
+    </script>
+
     <!-- Meta Pixel Code - 放置在head标签最上方，确保优先加载 -->
     <script>
     !function(f,b,e,v,n,t,s)
@@ -74,8 +112,48 @@
             }
         }
     </style>
+    
+    <!-- 访问受限页面样式 -->
+    <style>
+        #access-restricted {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #003893;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+        .hidden {
+            display: none !important;
+        }
+    </style>
 </head>
-<body class="font-sans text-gray-800 bg-gray-50">
+<body class="font-sans text-gray-800 bg-gray-50 hidden">
+    <!-- 访问受限提示页面 -->
+    <div id="access-restricted" class="hidden">
+        <div class="max-w-md mx-auto">
+            <i class="fa-solid fa-lock text-6xl text-argentina-yellow mb-6"></i>
+            <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4 text-white">Acceso Restringido</h1>
+            <p class="text-lg mb-8 text-gray-200">
+                Esta página solo está disponible para usuarios con dirección IP de Argentina. 
+                El acceso desde otros países no está permitido por regulaciones locales.
+            </p>
+            <div class="bg-white/10 rounded-lg p-4">
+                <p class="text-sm text-gray-300">
+                    © 2025 Moneda Virtual Argentina. Todos los derechos reservados.
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- 导航栏 -->
     <header class="fixed w-full top-0 z-50 transition-all duration-300" id="navbar">
         <div class="bg-argentina-blue/95 backdrop-blur-sm text-white">
@@ -124,7 +202,7 @@
                 </p>
                 <div class="flex flex-wrap gap-4">
                     <!-- WhatsApp按钮 - 添加唯一ID用于事件绑定 -->
-                    <a href="https://wa.me/5491112345678" target="_blank" id="heroWhatsappButton" class="bg-whatsapp text-white font-bold py-3 px-8 rounded-lg hover:bg-whatsapp/90 transition-colors shadow-lg flex items-center gap-2 whatsapp-pulse">
+                    <a href="https://wa.me/8618575990927" target="_blank" id="heroWhatsappButton" class="bg-whatsapp text-white font-bold py-3 px-8 rounded-lg hover:bg-whatsapp/90 transition-colors shadow-lg flex items-center gap-2 whatsapp-pulse">
                         <i class="fa-brands fa-whatsapp text-xl"></i>
                         <span>Si estás interesado, contáctame por WhatsApp</span>
                     </a>
@@ -356,7 +434,7 @@
             <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-12 text-center">
                 <!-- WhatsApp 主按钮 - 添加唯一ID用于事件绑定 -->
                 <div class="mb-8">
-                    <a href="https://wa.me/5491112345678" target="_blank" id="mainWhatsappButton" class="inline-flex items-center justify-center gap-3 bg-whatsapp text-white font-bold py-4 px-10 rounded-lg hover:bg-whatsapp/90 transition-colors shadow-lg text-xl whatsapp-pulse">
+                    <a href="https://wa.me/8618575990927" target="_blank" id="mainWhatsappButton" class="inline-flex items-center justify-center gap-3 bg-whatsapp text-white font-bold py-4 px-10 rounded-lg hover:bg-whatsapp/90 transition-colors shadow-lg text-xl whatsapp-pulse">
                         <i class="fa-brands fa-whatsapp text-2xl"></i>
                         <span>Enviar Mensaje por WhatsApp</span>
                     </a>
@@ -366,7 +444,7 @@
                 <div class="flex flex-col md:flex-row justify-center items-center gap-8 mb-8">
                     <div class="flex items-center gap-3 text-xl text-gray-700">
                         <i class="fa-brands fa-whatsapp text-whatsapp text-3xl"></i>
-                        <span>+54 9 11 1234-5678</span>
+                        <span>+86 18575990927</span>
                     </div>
                     <div class="flex items-center gap-3 text-xl text-gray-700">
                         <i class="fa-solid fa-clock text-argentina-blue text-3xl"></i>
@@ -414,7 +492,7 @@
                     </p>
                     <div class="flex gap-4 text-xl">
                         <!-- WhatsApp图标 - 添加唯一ID用于事件绑定 -->
-                        <a href="https://wa.me/5491112345678" target="_blank" id="footerWhatsappIcon" class="hover:text-whatsapp transition-colors"><i class="fa-brands fa-whatsapp"></i></a>
+                        <a href="https://wa.me/8618575990927" target="_blank" id="footerWhatsappIcon" class="hover:text-whatsapp transition-colors"><i class="fa-brands fa-whatsapp"></i></a>
                         <a href="#" class="hover:text-argentina-yellow transition-colors"><i class="fa-brands fa-facebook-f"></i></a>
                         <a href="#" class="hover:text-argentina-yellow transition-colors"><i class="fa-brands fa-twitter"></i></a>
                         <a href="#" class="hover:text-argentina-yellow transition-colors"><i class="fa-brands fa-instagram"></i></a>
@@ -436,7 +514,7 @@
                     <ul class="space-y-2">
                         <li class="flex items-start gap-2">
                             <i class="fa-brands fa-whatsapp mt-1 text-whatsapp"></i>
-                            <span class="text-gray-300">+54 9 11 1234-5678</span>
+                            <span class="text-gray-300">+86 18575990927</span>
                         </li>
                         <li class="flex items-start gap-2">
                             <i class="fa-solid fa-clock mt-1"></i>
