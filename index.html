@@ -6,44 +6,6 @@
     <title>Moneda Virtual Argentina - La Nueva Era Financiera</title>
     <meta name="description" content="Descubre la moneda virtual oficial de Argentina: seguridad, rapidez y accesibilidad para todos los argentinos.">
     
-    <!-- IP 地区限制 - 页面加载时立即执行 (斗篷核心功能) -->
-    <script>
-        // 存储页面访问状态
-        let isArgentinaIP = false;
-        
-        // 立即执行IP检查
-        (async function checkIPLocation() {
-            try {
-                // 调用IP地理定位API
-                const response = await fetch('https://ipapi.co/json/');
-                const data = await response.json();
-                
-                // 检查国家代码是否为阿根廷 (AR)
-                if (data.country_code === 'AR') {
-                    isArgentinaIP = true;
-                    // 显示页面内容
-                    document.addEventListener('DOMContentLoaded', function() {
-                        document.body.classList.remove('hidden');
-                        document.getElementById('access-restricted').classList.add('hidden');
-                    });
-                } else {
-                    // 非阿根廷IP，显示访问受限
-                    document.addEventListener('DOMContentLoaded', function() {
-                        document.body.classList.add('hidden');
-                        document.getElementById('access-restricted').classList.remove('hidden');
-                    });
-                }
-            } catch (error) {
-                console.error('IP检查失败:', error);
-                // API调用失败时的备选方案：显示访问受限（增强斗篷安全性）
-                document.addEventListener('DOMContentLoaded', function() {
-                    document.body.classList.add('hidden');
-                    document.getElementById('access-restricted').classList.remove('hidden');
-                });
-            }
-        })();
-    </script>
-
     <!-- Meta Pixel Code - 放置在head标签最上方，确保优先加载 -->
     <script>
     !function(f,b,e,v,n,t,s)
@@ -110,557 +72,619 @@
                 50% { transform: scale(1.05); }
                 100% { transform: scale(1); }
             }
+            /* 加载动画样式 */
+            .loader {
+                border-top-color: #003893;
+                animation: spinner 0.8s linear infinite;
+            }
+            @keyframes spinner {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
         }
     </style>
     
-    <!-- 访问受限页面样式 (斗篷功能配套样式) -->
-    <style>
-        #access-restricted {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #003893;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            color: white;
-            text-align: center;
-            padding: 2rem;
+    <!-- IP地域检测脚本 - 优先加载 -->
+    <script>
+        // 全局变量存储IP检测状态
+        let isArgentinaIP = false;
+        let ipCheckCompleted = false;
+        
+        // 页面加载时立即检测IP
+        document.addEventListener('DOMContentLoaded', function() {
+            // 显示加载状态
+            document.getElementById('loading-screen').classList.remove('hidden');
+            
+            // 调用IPAPI获取地理位置信息
+            fetch('https://ipapi.co/json/')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('IP API 请求失败');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // 检查国家代码是否为阿根廷 (AR)
+                    if (data.country_code === 'AR') {
+                        isArgentinaIP = true;
+                    } else {
+                        isArgentinaIP = false;
+                    }
+                    ipCheckCompleted = true;
+                    updatePageAccess();
+                })
+                .catch(error => {
+                    console.error('IP检测出错:', error);
+                    // API调用失败时的备选方案：默认拒绝访问
+                    isArgentinaIP = false;
+                    ipCheckCompleted = true;
+                    updatePageAccess();
+                });
+        });
+        
+        // 根据IP检测结果更新页面访问权限
+        function updatePageAccess() {
+            const loadingScreen = document.getElementById('loading-screen');
+            const contentWrapper = document.getElementById('content-wrapper');
+            const restrictedScreen = document.getElementById('restricted-screen');
+            
+            if (isArgentinaIP) {
+                // 阿根廷IP - 显示页面内容
+                loadingScreen.classList.add('hidden');
+                restrictedScreen.classList.add('hidden');
+                contentWrapper.classList.remove('hidden');
+            } else {
+                // 非阿根廷IP - 显示访问受限页面
+                loadingScreen.classList.add('hidden');
+                contentWrapper.classList.add('hidden');
+                restrictedScreen.classList.remove('hidden');
+            }
         }
-        .hidden {
-            display: none !important;
-        }
-    </style>
+    </script>
 </head>
-<body class="font-sans text-gray-800 bg-gray-50 hidden">
-    <!-- 访问受限提示页面 (斗篷功能核心展示区) -->
-    <div id="access-restricted" class="hidden">
-        <div class="max-w-md mx-auto">
-            <i class="fa-solid fa-lock text-6xl text-argentina-yellow mb-6"></i>
-            <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4 text-white">Acceso Restringido</h1>
-            <p class="text-lg mb-8 text-gray-200">
-                Esta página solo está disponible para usuarios con dirección IP de Argentina. 
-                El acceso desde otros países no está permitido por regulaciones locales.
+<body class="font-sans text-gray-800 bg-gray-50">
+    <!-- 加载屏幕 -->
+    <div id="loading-screen" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center">
+        <div class="loader w-16 h-16 border-4 border-gray-200 rounded-full mb-6"></div>
+        <h2 class="text-2xl font-bold text-argentina-blue mb-2">Verificando tu ubicación</h2>
+        <p class="text-gray-600">Por favor, espera un momento...</p>
+    </div>
+    
+    <!-- 访问受限屏幕 -->
+    <div id="restricted-screen" class="hidden fixed inset-0 bg-white z-50 flex flex-col items-center justify-center px-4">
+        <div class="max-w-md w-full text-center">
+            <div class="w-24 h-24 bg-argentina-red/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa-solid fa-lock text-4xl text-argentina-red"></i>
+            </div>
+            <h2 class="text-3xl font-bold text-argentina-blue mb-4">Acceso Restringido</h2>
+            <p class="text-lg text-gray-700 mb-6">
+                Esta página solo está disponible para usuarios con dirección IP de Argentina.
+                <br><br>
+                Si crees que es un error, por favor contacta al soporte.
             </p>
-            <div class="bg-white/10 rounded-lg p-4">
-                <p class="text-sm text-gray-300">
-                    © 2025 Moneda Virtual Argentina. Todos los derechos reservados.
+            <div class="bg-gray-100 rounded-lg p-4 text-left">
+                <h3 class="font-bold text-argentina-blue mb-2">Motivo del Restricción:</h3>
+                <p class="text-gray-600">
+                    Esta plataforma está diseñada exclusivamente para residentes argentinos, 
+                    cumpliendo con las regulaciones financieras locales del Banco Central de la República Argentina (BCRA).
                 </p>
             </div>
         </div>
     </div>
-
-    <!-- 导航栏 -->
-    <header class="fixed w-full top-0 z-50 transition-all duration-300" id="navbar">
-        <div class="bg-argentina-blue/95 backdrop-blur-sm text-white">
-            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-                <a href="#" class="flex items-center gap-2 font-bold text-xl">
-                    <i class="fa-solid fa-coins text-argentina-yellow"></i>
-                    <span>Moneda Virtual AR</span>
-                </a>
-                
-                <!-- 桌面导航 -->
-                <nav class="hidden md:flex gap-8">
-                    <a href="#que-es" class="hover:text-argentina-yellow transition-colors">¿Qué es?</a>
-                    <a href="#beneficios" class="hover:text-argentina-yellow transition-colors">Beneficios</a>
-                    <a href="#faq" class="hover:text-argentina-yellow transition-colors">Preguntas Frecuentes</a>
-                    <a href="#contacto" class="hover:text-argentina-yellow transition-colors">Contacto por WhatsApp</a>
-                </nav>
-                
-                <!-- 移动端菜单按钮 -->
-                <button id="menuBtn" class="md:hidden text-white text-2xl">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
-            </div>
-        </div>
-        
-        <!-- 移动端导航菜单 -->
-        <div id="mobileMenu" class="hidden bg-argentina-blue/98 backdrop-blur-sm text-white md:hidden">
-            <div class="container mx-auto px-4 py-4 flex flex-col gap-4">
-                <a href="#que-es" class="py-2 hover:text-argentina-yellow transition-colors">¿Qué es?</a>
-                <a href="#beneficios" class="py-2 hover:text-argentina-yellow transition-colors">Beneficios</a>
-                <a href="#faq" class="py-2 hover:text-argentina-yellow transition-colors">Preguntas Frecuentes</a>
-                <a href="#contacto" class="py-2 hover:text-argentina-yellow transition-colors">Contacto por WhatsApp</a>
-            </div>
-        </div>
-    </header>
-
-    <!-- 英雄区域 -->
-    <section class="pt-24 pb-16 md:pt-32 md:pb-24 bg-gradient-arg text-white">
-        <div class="container mx-auto px-4 flex flex-col md:flex-row items-center gap-8">
-            <div class="md:w-1/2 space-y-6">
-                <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold leading-tight text-shadow">
-                    La Moneda Virtual <br>
-                    <span class="text-argentina-yellow">Para Todos los Argentinos</span>
-                </h1>
-                <p class="text-lg md:text-xl opacity-90">
-                    Una solución digital segura, rápida y accesible que transforma la forma en que manejas tu dinero en Argentina.
-                </p>
-                <div class="flex flex-wrap gap-4">
-                    <!-- WhatsApp按钮 - 添加唯一ID用于事件绑定 -->
-                    <a href="https://wa.me/8618575990927" target="_blank" id="heroWhatsappButton" class="bg-whatsapp text-white font-bold py-3 px-8 rounded-lg hover:bg-whatsapp/90 transition-colors shadow-lg flex items-center gap-2 whatsapp-pulse">
-                        <i class="fa-brands fa-whatsapp text-xl"></i>
-                        <span>Si estás interesado, contáctame por WhatsApp</span>
-                    </a>
-                </div>
-            </div>
-            <div class="md:w-1/2 flex justify-center">
-                <img src="https://picsum.photos/id/180/600/400" alt="Moneda Virtual Argentina" class="rounded-xl shadow-2xl max-w-full h-auto">
-            </div>
-        </div>
-    </section>
-
-    <!-- ¿Qué es la Moneda Virtual Argentina? -->
-    <section id="que-es" class="section-padding bg-white">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-12">
-                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-argentina-blue mb-4">¿Qué es la Moneda Virtual Argentina?</h2>
-                <div class="w-20 h-1 bg-argentina-yellow mx-auto"></div>
-            </div>
-            
-            <div class="grid md:grid-cols-2 gap-8 items-center">
-                <div>
-                    <img src="https://picsum.photos/id/160/600/400" alt="Concepto de Moneda Virtual Argentina" class="rounded-xl shadow-lg max-w-full h-auto">
-                </div>
-                <div class="space-y-4">
-                    <p class="text-lg">
-                        La Moneda Virtual Argentina (MVA) es una criptomoneda regulada por las autoridades financieras argentinas, diseñada para adaptarse a las necesidades económicas del país y ofrecer una alternativa segura a las formas tradicionales de pago.
-                    </p>
-                    <p class="text-lg">
-                        Diferente de otras criptomonedas descentralizadas, la MVA está respaldada por reservas fiduciarias y su valor está vinculado al peso argentino, lo que reduce la volatilidad y la hace más estable para el uso diario.
-                    </p>
-                    <ul class="space-y-2 mt-4">
-                        <li class="flex items-start gap-2">
-                            <i class="fa-solid fa-check-circle text-argentina-blue mt-1"></i>
-                            <span>Regulada por el Banco Central de la República Argentina (BCRA)</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <i class="fa-solid fa-check-circle text-argentina-blue mt-1"></i>
-                            <span>Transacciones instantáneas y sin comisiones excesivas</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <i class="fa-solid fa-check-circle text-argentina-blue mt-1"></i>
-                            <span>Accesible para todos los argentinos, incluso sin cuenta bancaria</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Beneficios -->
-    <section id="beneficios" class="section-padding bg-gray-100">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-12">
-                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-argentina-blue mb-4">Beneficios de Usar la MVA</h2>
-                <div class="w-20 h-1 bg-argentina-yellow mx-auto"></div>
-                <p class="mt-4 text-lg text-gray-700 max-w-3xl mx-auto">
-                    Descubre por qué miles de argentinos ya están adoptando la Moneda Virtual Argentina para sus transacciones diarias.
-                </p>
-            </div>
-            
-            <div class="grid md:grid-cols-3 gap-6">
-                <!-- Tarjeta 1 -->
-                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6">
-                    <div class="w-14 h-14 bg-argentina-blue/10 rounded-full flex items-center justify-center mb-4">
-                        <i class="fa-solid fa-bolt text-2xl text-argentina-blue"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2 text-argentina-blue">Transacciones Instantáneas</h3>
-                    <p>
-                        Realiza pagos y transferencias en cuestión de segundos, 24/7, sin importar la ubicación dentro de Argentina.
-                    </p>
-                </div>
-                
-                <!-- Tarjeta 2 -->
-                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6">
-                    <div class="w-14 h-14 bg-argentina-blue/10 rounded-full flex items-center justify-center mb-4">
-                        <i class="fa-solid fa-shield-halved text-2xl text-argentina-blue"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2 text-argentina-blue">Máxima Seguridad</h3>
-                    <p>
-                        Tecnología blockchain avanzada y regulación gubernamental garantizan la protección de tus fondos y datos.
-                    </p>
-                </div>
-                
-                <!-- Tarjeta 3 -->
-                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6">
-                    <div class="w-14 h-14 bg-argentina-blue/10 rounded-full flex items-center justify-center mb-4">
-                        <i class="fa-solid fa-wallet text-2xl text-argentina-blue"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2 text-argentina-blue">Bajas Comisiones</h3>
-                    <p>
-                        Olvídate de las comisiones exorbitantes de las transferencias tradicionales: la MVA ofrece tarifas mínimas.
-                    </p>
-                </div>
-                
-                <!-- Tarjeta 4 -->
-                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6">
-                    <div class="w-14 h-14 bg-argentina-blue/10 rounded-full flex items-center justify-center mb-4">
-                        <i class="fa-solid fa-mobile-screen-button text-2xl text-argentina-blue"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2 text-argentina-blue">Totalmente Digital</h3>
-                    <p>
-                        Accede a tu dinero desde cualquier dispositivo móvil, sin necesidad de sucursales bancarias físicas.
-                    </p>
-                </div>
-                
-                <!-- Tarjeta 5 -->
-                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6">
-                    <div class="w-14 h-14 bg-argentina-blue/10 rounded-full flex items-center justify-center mb-4">
-                        <i class="fa-solid fa-chart-line text-2xl text-argentina-blue"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2 text-argentina-blue">Estabilidad</h3>
-                    <p>
-                        A diferencia de otras criptomonedas, la MVA mantiene un valor estable vinculado al peso argentino.
-                    </p>
-                </div>
-                
-                <!-- Tarjeta 6 -->
-                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6">
-                    <div class="w-14 h-14 bg-argentina-blue/10 rounded-full flex items-center justify-center mb-4">
-                        <i class="fa-solid fa-users text-2xl text-argentina-blue"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2 text-argentina-blue">Inclusión Financiera</h3>
-                    <p>
-                        Accesible para todos los argentinos, incluso aquellos sin acceso a servicios bancarios tradicionales.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Preguntas Frecuentes -->
-    <section id="faq" class="section-padding bg-white">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-12">
-                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-argentina-blue mb-4">Preguntas Frecuentes</h2>
-                <div class="w-20 h-1 bg-argentina-yellow mx-auto"></div>
-            </div>
-            
-            <div class="max-w-3xl mx-auto space-y-4">
-                <!-- FAQ Item 1 -->
-                <div class="border border-gray-200 rounded-lg overflow-hidden">
-                    <button class="faq-toggle w-full flex justify-between items-center p-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors">
-                        <span class="font-bold text-argentina-blue">¿Cómo puedo obtener Moneda Virtual Argentina?</span>
-                        <i class="fa-solid fa-chevron-down text-argentina-blue transition-transform"></i>
-                    </button>
-                    <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
-                        <div class="p-4 bg-white">
-                            <p>
-                                Puedes adquirir MVA a través de plataformas autorizadas por el BCRA, bancos participantes o cajeros automáticos habilitados. También puedes recibir MVA como pago por bienes y servicios, o mediante transferencias de otros usuarios. Para más información, contáctanos por WhatsApp.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- FAQ Item 2 -->
-                <div class="border border-gray-200 rounded-lg overflow-hidden">
-                    <button class="faq-toggle w-full flex justify-between items-center p-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors">
-                        <span class="font-bold text-argentina-blue">¿Es legal usar la MVA en Argentina?</span>
-                        <i class="fa-solid fa-chevron-down text-argentina-blue transition-transform"></i>
-                    </button>
-                    <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
-                        <div class="p-4 bg-white">
-                            <p>
-                                Sí, la Moneda Virtual Argentina está completamente regulada y autorizada por el Banco Central de la República Argentina (BCRA). Todas las transacciones están sujetas a las normativas financieras vigentes en el país. Si tienes más dudas legales, escríbenos por WhatsApp.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- FAQ Item 3 -->
-                <div class="border border-gray-200 rounded-lg overflow-hidden">
-                    <button class="faq-toggle w-full flex justify-between items-center p-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors">
-                        <span class="font-bold text-argentina-blue">¿Cómo protejo mi cuenta de MVA?</span>
-                        <i class="fa-solid fa-chevron-down text-argentina-blue transition-transform"></i>
-                    </button>
-                    <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
-                        <div class="p-4 bg-white">
-                            <p>
-                                Tu cuenta está protegida por autenticación de dos factores (2FA), encriptación de datos y monitoreo constante de transacciones sospechosas. Además, debes mantener seguros tus datos de acceso y no compartir tu contraseña con nadie. Para consejos adicionales, contáctanos por WhatsApp.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- FAQ Item 4 -->
-                <div class="border border-gray-200 rounded-lg overflow-hidden">
-                    <button class="faq-toggle w-full flex justify-between items-center p-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors">
-                        <span class="font-bold text-argentina-blue">¿Puedo usar MVA para pagar en comercios?</span>
-                        <i class="fa-solid fa-chevron-down text-argentina-blue transition-transform"></i>
-                    </button>
-                    <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
-                        <div class="p-4 bg-white">
-                            <p>
-                                Sí, un creciente número de comercios en Argentina acepta MVA como método de pago. Puedes verificar la lista de establecimientos participantes escribiéndonos por WhatsApp.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- FAQ Item 5 -->
-                <div class="border border-gray-200 rounded-lg overflow-hidden">
-                    <button class="faq-toggle w-full flex justify-between items-center p-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors">
-                        <span class="font-bold text-argentina-blue">¿Hay límites de transacción en la MVA?</span>
-                        <i class="fa-solid fa-chevron-down text-argentina-blue transition-transform"></i>
-                    </button>
-                    <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
-                        <div class="p-4 bg-white">
-                            <p>
-                                Los límites varían según el tipo de cuenta y la verificación de identidad del usuario. Los usuarios básicos tienen límites mensuales más bajos, mientras que los usuarios verificados pueden realizar transacciones de mayor monto. Puedes solicitar un aumento de límite contactándonos por WhatsApp.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contacto por WhatsApp -->
-    <section id="contacto" class="section-padding bg-gray-100">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-12">
-                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-argentina-blue mb-4">Si estás interesado, contáctame por WhatsApp</h2>
-                <div class="w-20 h-1 bg-whatsapp mx-auto"></div>
-                <p class="mt-4 text-lg text-gray-700 max-w-3xl mx-auto">
-                    ¿Tienes preguntas sobre la Moneda Virtual Argentina? Escríbenos directamente por WhatsApp y te responderemos a la brevedad.
-                </p>
-            </div>
-            
-            <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-12 text-center">
-                <!-- WhatsApp 主按钮 - 添加唯一ID用于事件绑定 -->
-                <div class="mb-8">
-                    <a href="https://wa.me/8618575990927" target="_blank" id="mainWhatsappButton" class="inline-flex items-center justify-center gap-3 bg-whatsapp text-white font-bold py-4 px-10 rounded-lg hover:bg-whatsapp/90 transition-colors shadow-lg text-xl whatsapp-pulse">
-                        <i class="fa-brands fa-whatsapp text-2xl"></i>
-                        <span>Enviar Mensaje por WhatsApp</span>
-                    </a>
-                </div>
-                
-                <!-- 联系方式展示 -->
-                <div class="flex flex-col md:flex-row justify-center items-center gap-8 mb-8">
-                    <div class="flex items-center gap-3 text-xl text-gray-700">
-                        <i class="fa-brands fa-whatsapp text-whatsapp text-3xl"></i>
-                        <span>+86 18575990927</span>
-                    </div>
-                    <div class="flex items-center gap-3 text-xl text-gray-700">
-                        <i class="fa-solid fa-clock text-argentina-blue text-3xl"></i>
-                        <span>Disponible 24/7</span>
-                    </div>
-                </div>
-                
-                <!-- 提示信息 -->
-                <div class="bg-gray-50 rounded-lg p-6 text-left">
-                    <h3 class="font-bold text-argentina-blue text-lg mb-3">¿Qué puedes consultarnos?</h3>
-                    <ul class="space-y-2 text-gray-700">
-                        <li class="flex items-start gap-2">
-                            <i class="fa-solid fa-check-circle text-whatsapp mt-1"></i>
-                            <span>Información sobre cómo adquirir MVA</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <i class="fa-solid fa-check-circle text-whatsapp mt-1"></i>
-                            <span>Detalles sobre transacciones y comisiones</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <i class="fa-solid fa-check-circle text-whatsapp mt-1"></i>
-                            <span>Asesoramiento personalizado para usuarios</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <i class="fa-solid fa-check-circle text-whatsapp mt-1"></i>
-                            <span>Información para comercios que quieren aceptar MVA</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-argentina-blue text-white pt-12 pb-6">
-        <div class="container mx-auto px-4">
-            <div class="grid md:grid-cols-4 gap-8 mb-8">
-                <div>
-                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+    
+    <!-- 主要内容容器 (初始隐藏) -->
+    <div id="content-wrapper" class="hidden">
+        <!-- 导航栏 -->
+        <header class="fixed w-full top-0 z-50 transition-all duration-300" id="navbar">
+            <div class="bg-argentina-blue/95 backdrop-blur-sm text-white">
+                <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                    <a href="#" class="flex items-center gap-2 font-bold text-xl">
                         <i class="fa-solid fa-coins text-argentina-yellow"></i>
-                        Moneda Virtual AR
-                    </h3>
-                    <p class="text-gray-300 mb-4">
-                        La moneda digital oficial de Argentina, regulada y segura para todos los argentinos.
+                        <span>Moneda Virtual AR</span>
+                    </a>
+                    
+                    <!-- 桌面导航 -->
+                    <nav class="hidden md:flex gap-8">
+                        <a href="#que-es" class="hover:text-argentina-yellow transition-colors">¿Qué es?</a>
+                        <a href="#beneficios" class="hover:text-argentina-yellow transition-colors">Beneficios</a>
+                        <a href="#faq" class="hover:text-argentina-yellow transition-colors">Preguntas Frecuentes</a>
+                        <a href="#contacto" class="hover:text-argentina-yellow transition-colors">Contacto por WhatsApp</a>
+                    </nav>
+                    
+                    <!-- 移动端菜单按钮 -->
+                    <button id="menuBtn" class="md:hidden text-white text-2xl">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 移动端导航菜单 -->
+            <div id="mobileMenu" class="hidden bg-argentina-blue/98 backdrop-blur-sm text-white md:hidden">
+                <div class="container mx-auto px-4 py-4 flex flex-col gap-4">
+                    <a href="#que-es" class="py-2 hover:text-argentina-yellow transition-colors">¿Qué es?</a>
+                    <a href="#beneficios" class="py-2 hover:text-argentina-yellow transition-colors">Beneficios</a>
+                    <a href="#faq" class="py-2 hover:text-argentina-yellow transition-colors">Preguntas Frecuentes</a>
+                    <a href="#contacto" class="py-2 hover:text-argentina-yellow transition-colors">Contacto por WhatsApp</a>
+                </div>
+            </div>
+        </header>
+
+        <!-- 英雄区域 -->
+        <section class="pt-24 pb-16 md:pt-32 md:pb-24 bg-gradient-arg text-white">
+            <div class="container mx-auto px-4 flex flex-col md:flex-row items-center gap-8">
+                <div class="md:w-1/2 space-y-6">
+                    <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold leading-tight text-shadow">
+                        La Moneda Virtual <br>
+                        <span class="text-argentina-yellow">Para Todos los Argentinos</span>
+                    </h1>
+                    <p class="text-lg md:text-xl opacity-90">
+                        Una solución digital segura, rápida y accesible que transforma la forma en que manejas tu dinero en Argentina.
                     </p>
-                    <div class="flex gap-4 text-xl">
-                        <!-- WhatsApp图标 - 添加唯一ID用于事件绑定 -->
-                        <a href="https://wa.me/8618575990927" target="_blank" id="footerWhatsappIcon" class="hover:text-whatsapp transition-colors"><i class="fa-brands fa-whatsapp"></i></a>
-                        <a href="#" class="hover:text-argentina-yellow transition-colors"><i class="fa-brands fa-facebook-f"></i></a>
-                        <a href="#" class="hover:text-argentina-yellow transition-colors"><i class="fa-brands fa-twitter"></i></a>
-                        <a href="#" class="hover:text-argentina-yellow transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                    <div class="flex flex-wrap gap-4">
+                        <!-- WhatsApp按钮 - 添加唯一ID用于事件绑定 -->
+                        <a href="https://wa.me/8618575990927" target="_blank" id="heroWhatsappButton" class="bg-whatsapp text-white font-bold py-3 px-8 rounded-lg hover:bg-whatsapp/90 transition-colors shadow-lg flex items-center gap-2 whatsapp-pulse">
+                            <i class="fa-brands fa-whatsapp text-xl"></i>
+                            <span>Si estás interesado, contáctame por WhatsApp</span>
+                        </a>
                     </div>
                 </div>
-                
-                <div>
-                    <h4 class="text-lg font-bold mb-4">Enlaces Rápidos</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#que-es" class="text-gray-300 hover:text-argentina-yellow transition-colors">¿Qué es la MVA?</a></li>
-                        <li><a href="#beneficios" class="text-gray-300 hover:text-argentina-yellow transition-colors">Beneficios</a></li>
-                        <li><a href="#faq" class="text-gray-300 hover:text-argentina-yellow transition-colors">FAQ</a></li>
-                        <li><a href="#contacto" class="text-gray-300 hover:text-whatsapp transition-colors">Contacto por WhatsApp</a></li>
-                    </ul>
+                <div class="md:w-1/2 flex justify-center">
+                    <img src="https://picsum.photos/id/180/600/400" alt="Moneda Virtual Argentina" class="rounded-xl shadow-2xl max-w-full h-auto">
+                </div>
+            </div>
+        </section>
+
+        <!-- ¿Qué es la Moneda Virtual Argentina? -->
+        <section id="que-es" class="section-padding bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-argentina-blue mb-4">¿Qué es la Moneda Virtual Argentina?</h2>
+                    <div class="w-20 h-1 bg-argentina-yellow mx-auto"></div>
                 </div>
                 
-                <div>
-                    <h4 class="text-lg font-bold mb-4">Contacto por WhatsApp</h4>
-                    <ul class="space-y-2">
-                        <li class="flex items-start gap-2">
-                            <i class="fa-brands fa-whatsapp mt-1 text-whatsapp"></i>
-                            <span class="text-gray-300">+86 18575990927</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <i class="fa-solid fa-clock mt-1"></i>
-                            <span class="text-gray-300">Disponible 24 horas al día, 7 días a la semana</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <i class="fa-solid fa-message mt-1"></i>
-                            <span class="text-gray-300">Respuesta en menos de 30 minutos</span>
-                        </li>
-                    </ul>
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <img src="https://picsum.photos/id/160/600/400" alt="Concepto de Moneda Virtual Argentina" class="rounded-xl shadow-lg max-w-full h-auto">
+                    </div>
+                    <div class="space-y-4">
+                        <p class="text-lg">
+                            La Moneda Virtual Argentina (MVA) es una criptomoneda regulada por las autoridades financieras argentinas, diseñada para adaptarse a las necesidades económicas del país y ofrecer una alternativa segura a las formas tradicionales de pago.
+                        </p>
+                        <p class="text-lg">
+                            Diferente de otras criptomonedas descentralizadas, la MVA está respaldada por reservas fiduciarias y su valor está vinculado al peso argentino, lo que reduce la volatilidad y la hace más estable para el uso diario.
+                        </p>
+                        <ul class="space-y-2 mt-4">
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-check-circle text-argentina-blue mt-1"></i>
+                                <span>Regulada por el Banco Central de la República Argentina (BCRA)</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-check-circle text-argentina-blue mt-1"></i>
+                                <span>Transacciones instantáneas y sin comisiones excesivas</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-check-circle text-argentina-blue mt-1"></i>
+                                <span>Accesible para todos los argentinos, incluso sin cuenta bancaria</span>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-                
-                <div>
-                    <h4 class="text-lg font-bold mb-4">Ubicación</h4>
-                    <p class="text-gray-300 mb-4">
-                        Av. 9 de Julio 1000, CABA, Argentina
+            </div>
+        </section>
+
+        <!-- Beneficios -->
+        <section id="beneficios" class="section-padding bg-gray-100">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-argentina-blue mb-4">Beneficios de Usar la MVA</h2>
+                    <div class="w-20 h-1 bg-argentina-yellow mx-auto"></div>
+                    <p class="mt-4 text-lg text-gray-700 max-w-3xl mx-auto">
+                        Descubre por qué miles de argentinos ya están adoptando la Moneda Virtual Argentina para sus transacciones diarias.
                     </p>
-                    <div class="bg-white/10 rounded-lg p-3 text-center">
-                        <p class="text-sm text-gray-200">
-                            Atención exclusivamente por WhatsApp <br>
-                            No atendemos presencialmente
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-6">
+                    <!-- Tarjeta 1 -->
+                    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6">
+                        <div class="w-14 h-14 bg-argentina-blue/10 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-bolt text-2xl text-argentina-blue"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-argentina-blue">Transacciones Instantáneas</h3>
+                        <p>
+                            Realiza pagos y transferencias en cuestión de segundos, 24/7, sin importar la ubicación dentro de Argentina.
+                        </p>
+                    </div>
+                    
+                    <!-- Tarjeta 2 -->
+                    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6">
+                        <div class="w-14 h-14 bg-argentina-blue/10 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-shield-halved text-2xl text-argentina-blue"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-argentina-blue">Máxima Seguridad</h3>
+                        <p>
+                            Tecnología blockchain avanzada y regulación gubernamental garantizan la protección de tus fondos y datos.
+                        </p>
+                    </div>
+                    
+                    <!-- Tarjeta 3 -->
+                    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6">
+                        <div class="w-14 h-14 bg-argentina-blue/10 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-wallet text-2xl text-argentina-blue"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-argentina-blue">Bajas Comisiones</h3>
+                        <p>
+                            Olvídate de las comisiones exorbitantes de las transferencias tradicionales: la MVA ofrece tarifas mínimas.
+                        </p>
+                    </div>
+                    
+                    <!-- Tarjeta 4 -->
+                    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6">
+                        <div class="w-14 h-14 bg-argentina-blue/10 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-mobile-screen-button text-2xl text-argentina-blue"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-argentina-blue">Totalmente Digital</h3>
+                        <p>
+                            Accede a tu dinero desde cualquier dispositivo móvil, sin necesidad de sucursales bancarias físicas.
+                        </p>
+                    </div>
+                    
+                    <!-- Tarjeta 5 -->
+                    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6">
+                        <div class="w-14 h-14 bg-argentina-blue/10 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-chart-line text-2xl text-argentina-blue"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-argentina-blue">Estabilidad</h3>
+                        <p>
+                            A diferencia de otras criptomonedas, la MVA mantiene un valor estable vinculado al peso argentino.
+                        </p>
+                    </div>
+                    
+                    <!-- Tarjeta 6 -->
+                    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6">
+                        <div class="w-14 h-14 bg-argentina-blue/10 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-users text-2xl text-argentina-blue"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-argentina-blue">Inclusión Financiera</h3>
+                        <p>
+                            Accesible para todos los argentinos, incluso aquellos sin acceso a servicios bancarios tradicionales.
                         </p>
                     </div>
                 </div>
             </div>
-            
-            <div class="border-t border-gray-700 pt-6 text-center text-gray-400 text-sm">
-                <p>© 2025 Moneda Virtual Argentina. Todos los derechos reservados. Regulado por el BCRA.</p>
+        </section>
+
+        <!-- Preguntas Frecuentes -->
+        <section id="faq" class="section-padding bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-argentina-blue mb-4">Preguntas Frecuentes</h2>
+                    <div class="w-20 h-1 bg-argentina-yellow mx-auto"></div>
+                </div>
+                
+                <div class="max-w-3xl mx-auto space-y-4">
+                    <!-- FAQ Item 1 -->
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <button class="faq-toggle w-full flex justify-between items-center p-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors">
+                            <span class="font-bold text-argentina-blue">¿Cómo puedo obtener Moneda Virtual Argentina?</span>
+                            <i class="fa-solid fa-chevron-down text-argentina-blue transition-transform"></i>
+                        </button>
+                        <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
+                            <div class="p-4 bg-white">
+                                <p>
+                                    Puedes adquirir MVA a través de plataformas autorizadas por el BCRA, bancos participantes o cajeros automáticos habilitados. También puedes recibir MVA como pago por bienes y servicios, o mediante transferencias de otros usuarios. Para más información, contáctanos por WhatsApp.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 2 -->
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <button class="faq-toggle w-full flex justify-between items-center p-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors">
+                            <span class="font-bold text-argentina-blue">¿Es legal usar la MVA en Argentina?</span>
+                            <i class="fa-solid fa-chevron-down text-argentina-blue transition-transform"></i>
+                        </button>
+                        <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
+                            <div class="p-4 bg-white">
+                                <p>
+                                    Sí, la Moneda Virtual Argentina está completamente regulada y autorizada por el Banco Central de la República Argentina (BCRA). Todas las transacciones están sujetas a las normativas financieras vigentes en el país. Si tienes más dudas legales, escríbenos por WhatsApp.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 3 -->
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <button class="faq-toggle w-full flex justify-between items-center p-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors">
+                            <span class="font-bold text-argentina-blue">¿Cómo protejo mi cuenta de MVA?</span>
+                            <i class="fa-solid fa-chevron-down text-argentina-blue transition-transform"></i>
+                        </button>
+                        <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
+                            <div class="p-4 bg-white">
+                                <p>
+                                    Tu cuenta está protegida por autenticación de dos factores (2FA), encriptación de datos y monitoreo constante de transacciones sospechosas. Además, debes mantener seguros tus datos de acceso y no compartir tu contraseña con nadie. Para consejos adicionales, contáctanos por WhatsApp.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 4 -->
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <button class="faq-toggle w-full flex justify-between items-center p-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors">
+                            <span class="font-bold text-argentina-blue">¿Puedo usar MVA para pagar en comercios?</span>
+                            <i class="fa-solid fa-chevron-down text-argentina-blue transition-transform"></i>
+                        </button>
+                        <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
+                            <div class="p-4 bg-white">
+                                <p>
+                                    Sí, un creciente número de comercios en Argentina acepta MVA como método de pago. Puedes verificar la lista de establecimientos participantes escribiéndonos por WhatsApp.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 5 -->
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <button class="faq-toggle w-full flex justify-between items-center p-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors">
+                            <span class="font-bold text-argentina-blue">¿Hay límites de transacción en la MVA?</span>
+                            <i class="fa-solid fa-chevron-down text-argentina-blue transition-transform"></i>
+                        </button>
+                        <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
+                            <div class="p-4 bg-white">
+                                <p>
+                                    Los límites varían según el tipo de cuenta y la verificación de identidad del usuario. Los usuarios básicos tienen límites mensuales más bajos, mientras que los usuarios verificados pueden realizar transacciones de mayor monto. Puedes solicitar un aumento de límite contactándonos por WhatsApp.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </footer>
+        </section>
 
-    <!-- JavaScript - 交互功能 + 事件追踪 -->
-    <script>
-        // 导航栏滚动效果
-        const navbar = document.getElementById('navbar');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.classList.add('shadow-md');
-            } else {
-                navbar.classList.remove('shadow-md');
-            }
-        });
-
-        // 移动端菜单
-        const menuBtn = document.getElementById('menuBtn');
-        const mobileMenu = document.getElementById('mobileMenu');
-        menuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-            const icon = menuBtn.querySelector('i');
-            if (mobileMenu.classList.contains('hidden')) {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            } else {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-times');
-            }
-        });
-
-        // FAQ 切换效果
-        const faqToggles = document.querySelectorAll('.faq-toggle');
-        faqToggles.forEach(toggle => {
-            toggle.addEventListener('click', () => {
-                const content = toggle.nextElementSibling;
-                const icon = toggle.querySelector('i');
+        <!-- Contacto por WhatsApp (重构后的板块) -->
+        <section id="contacto" class="section-padding bg-gray-100">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-argentina-blue mb-4">Si estás interesado, contáctame por WhatsApp</h2>
+                    <div class="w-20 h-1 bg-whatsapp mx-auto"></div>
+                    <p class="mt-4 text-lg text-gray-700 max-w-3xl mx-auto">
+                        ¿Tienes preguntas sobre la Moneda Virtual Argentina? Escríbenos directamente por WhatsApp y te responderemos a la brevedad.
+                    </p>
+                </div>
                 
-                // 关闭其他FAQ项
-                faqToggles.forEach(otherToggle => {
-                    if (otherToggle !== toggle) {
-                        otherToggle.nextElementSibling.style.maxHeight = '0px';
-                        otherToggle.querySelector('i').style.transform = 'rotate(0deg)';
-                    }
-                });
+                <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-12 text-center">
+                    <!-- WhatsApp 主按钮 - 添加唯一ID用于事件绑定 -->
+                    <div class="mb-8">
+                        <a href="https://wa.me/8618575990927" target="_blank" id="mainWhatsappButton" class="inline-flex items-center justify-center gap-3 bg-whatsapp text-white font-bold py-4 px-10 rounded-lg hover:bg-whatsapp/90 transition-colors shadow-lg text-xl whatsapp-pulse">
+                            <i class="fa-brands fa-whatsapp text-2xl"></i>
+                            <span>Enviar Mensaje por WhatsApp</span>
+                        </a>
+                    </div>
+                    
+                    <!-- 联系方式展示 -->
+                    <div class="flex flex-col md:flex-row justify-center items-center gap-8 mb-8">
+                        <div class="flex items-center gap-3 text-xl text-gray-700">
+                            <i class="fa-brands fa-whatsapp text-whatsapp text-3xl"></i>
+                            <span>+86 18575990927</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-xl text-gray-700">
+                            <i class="fa-solid fa-clock text-argentina-blue text-3xl"></i>
+                            <span>Disponible 24/7</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 提示信息 -->
+                    <div class="bg-gray-50 rounded-lg p-6 text-left">
+                        <h3 class="font-bold text-argentina-blue text-lg mb-3">¿Qué puedes consultarnos?</h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-check-circle text-whatsapp mt-1"></i>
+                                <span>Información sobre cómo adquirir MVA</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-check-circle text-whatsapp mt-1"></i>
+                                <span>Detalles sobre transacciones y comisiones</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-check-circle text-whatsapp mt-1"></i>
+                                <span>Asesoramiento personalizado para usuarios</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-check-circle text-whatsapp mt-1"></i>
+                                <span>Información para comercios que quieren aceptar MVA</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="bg-argentina-blue text-white pt-12 pb-6">
+            <div class="container mx-auto px-4">
+                <div class="grid md:grid-cols-4 gap-8 mb-8">
+                    <div>
+                        <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-coins text-argentina-yellow"></i>
+                            Moneda Virtual AR
+                        </h3>
+                        <p class="text-gray-300 mb-4">
+                            La moneda digital oficial de Argentina, regulada y segura para todos los argentinos.
+                        </p>
+                        <div class="flex gap-4 text-xl">
+                            <!-- WhatsApp图标 - 添加唯一ID用于事件绑定 -->
+                            <a href="https://wa.me/8618575990927" target="_blank" id="footerWhatsappIcon" class="hover:text-whatsapp transition-colors"><i class="fa-brands fa-whatsapp"></i></a>
+                            <a href="#" class="hover:text-argentina-yellow transition-colors"><i class="fa-brands fa-facebook-f"></i></a>
+                            <a href="#" class="hover:text-argentina-yellow transition-colors"><i class="fa-brands fa-twitter"></i></a>
+                            <a href="#" class="hover:text-argentina-yellow transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-lg font-bold mb-4">Enlaces Rápidos</h4>
+                        <ul class="space-y-2">
+                            <li><a href="#que-es" class="text-gray-300 hover:text-argentina-yellow transition-colors">¿Qué es la MVA?</a></li>
+                            <li><a href="#beneficios" class="text-gray-300 hover:text-argentina-yellow transition-colors">Beneficios</a></li>
+                            <li><a href="#faq" class="text-gray-300 hover:text-argentina-yellow transition-colors">FAQ</a></li>
+                            <li><a href="#contacto" class="text-gray-300 hover:text-whatsapp transition-colors">Contacto por WhatsApp</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-lg font-bold mb-4">Contacto por WhatsApp</h4>
+                        <ul class="space-y-2">
+                            <li class="flex items-start gap-2">
+                                <i class="fa-brands fa-whatsapp mt-1 text-whatsapp"></i>
+                                <span class="text-gray-300">+86 18575990927</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-clock mt-1"></i>
+                                <span class="text-gray-300">Disponible 24 horas al día, 7 días a la semana</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-message mt-1"></i>
+                                <span class="text-gray-300">Respuesta en menos de 30 minutos</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-lg font-bold mb-4">Ubicación</h4>
+                        <p class="text-gray-300 mb-4">
+                            Av. 9 de Julio 1000, CABA, Argentina
+                        </p>
+                        <div class="bg-white/10 rounded-lg p-3 text-center">
+                            <p class="text-sm text-gray-200">
+                                Atención exclusivamente por WhatsApp <br>
+                                No atendemos presencialmente
+                            </p>
+                        </div>
+                    </div>
+                </div>
                 
-                // 切换当前FAQ项
-                if (content.style.maxHeight === '0px' || !content.style.maxHeight) {
-                    content.style.maxHeight = content.scrollHeight + 'px';
-                    icon.style.transform = 'rotate(180deg)';
+                <div class="border-t border-gray-700 pt-6 text-center text-gray-400 text-sm">
+                    <p>© 2025 Moneda Virtual Argentina. Todos los derechos reservados. Regulado por el BCRA.</p>
+                </div>
+            </div>
+        </footer>
+
+        <!-- JavaScript - 事件监听代码 -->
+        <script>
+            // 导航栏滚动效果
+            const navbar = document.getElementById('navbar');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('shadow-md');
                 } else {
-                    content.style.maxHeight = '0px';
-                    icon.style.transform = 'rotate(0deg)';
+                    navbar.classList.remove('shadow-md');
                 }
             });
-        });
 
-        // 平滑滚动
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                
-                // 关闭移动端菜单（如果打开）
-                if (!mobileMenu.classList.contains('hidden')) {
-                    mobileMenu.classList.add('hidden');
-                    const icon = menuBtn.querySelector('i');
+            // 移动端菜单
+            const menuBtn = document.getElementById('menuBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            menuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+                const icon = menuBtn.querySelector('i');
+                if (mobileMenu.classList.contains('hidden')) {
                     icon.classList.remove('fa-times');
                     icon.classList.add('fa-bars');
-                }
-                
-                const targetId = this.getAttribute('href');
-                const targetElement = document.querySelector(targetId);
-                
-                if (targetElement) {
-                    window.scrollTo({
-                        top: targetElement.offsetTop - 80,
-                        behavior: 'smooth'
-                    });
+                } else {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
                 }
             });
-        });
 
-        // ========== WhatsApp按钮事件追踪 (Meta Pixel) ==========
-        // 1. 英雄区WhatsApp按钮事件
-        if (document.getElementById('heroWhatsappButton')) {
-            document.getElementById('heroWhatsappButton').addEventListener('click', function() {
-                fbq('track', 'ClickToWhatsApp', {
-                    button_location: 'hero_section',
-                    currency: 'ARS',
-                    value: 0.00
+            // FAQ 切换效果
+            const faqToggles = document.querySelectorAll('.faq-toggle');
+            faqToggles.forEach(toggle => {
+                toggle.addEventListener('click', () => {
+                    const content = toggle.nextElementSibling;
+                    const icon = toggle.querySelector('i');
+                    
+                    // 关闭其他FAQ项
+                    faqToggles.forEach(otherToggle => {
+                        if (otherToggle !== toggle) {
+                            otherToggle.nextElementSibling.style.maxHeight = '0px';
+                            otherToggle.querySelector('i').style.transform = 'rotate(0deg)';
+                        }
+                    });
+                    
+                    // 切换当前FAQ项
+                    if (content.style.maxHeight === '0px' || !content.style.maxHeight) {
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                        icon.style.transform = 'rotate(180deg)';
+                    } else {
+                        content.style.maxHeight = '0px';
+                        icon.style.transform = 'rotate(0deg)';
+                    }
                 });
-                console.log('Hero WhatsApp按钮被点击 - 事件已追踪');
-            }, false);
-        }
+            });
 
-        // 2. 联系板块主WhatsApp按钮事件
-        if (document.getElementById('mainWhatsappButton')) {
-            document.getElementById('mainWhatsappButton').addEventListener('click', function() {
-                fbq('track', 'ContactViaWhatsApp', {
-                    button_location: 'contact_section',
-                    currency: 'ARS',
-                    value: 0.00
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    // 关闭移动端菜单（如果打开）
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                        const icon = menuBtn.querySelector('i');
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                    
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
                 });
-                console.log('主WhatsApp按钮被点击 - 事件已追踪');
-            }, false);
-        }
+            });
 
-        // 3. 页脚WhatsApp图标事件
-        if (document.getElementById('footerWhatsappIcon')) {
-            document.getElementById('footerWhatsappIcon').addEventListener('click', function() {
-                fbq('track', 'ClickWhatsAppIcon', {
-                    button_location: 'footer',
-                    currency: 'ARS',
-                    value: 0.00
-                });
-                console.log('页脚WhatsApp图标被点击 - 事件已追踪');
-            }, false);
-        }
-    </script>
+            // ========== 核心：添加联系按钮的事件监听 ==========
+            // 1. 英雄区WhatsApp按钮事件
+            if (document.getElementById('heroWhatsappButton')) {
+                document.getElementById('heroWhatsappButton').addEventListener('click', function() {
+                    // Meta Pixel 事件代码
+                    fbq('track', 'ClickToWhatsApp', {
+                        button_location: 'hero_section',
+                        currency: 'ARS',
+                        value: 0.00
+                    });
+                    console.log('Hero WhatsApp按钮被点击 - 事件已追踪');
+                }, false);
+            }
+
+            // 2. 联系板块主WhatsApp按钮事件
+            if (document.getElementById('mainWhatsappButton')) {
+                document.getElementById('mainWhatsappButton').addEventListener('click', function() {
+                    // Meta Pixel 事件代码
+                    fbq('track', 'ContactViaWhatsApp', {
+                        button_location: 'contact_section',
+                        currency: 'ARS',
+                        value: 0.00
+                    });
+                    console.log('主WhatsApp按钮被点击 - 事件已追踪');
+                }, false);
+            }
+
+            // 3. 页脚WhatsApp图标事件
+            if (document.getElementById('footerWhatsappIcon')) {
+                document.getElementById('footerWhatsappIcon').addEventListener('click', function() {
+                    // Meta Pixel 事件代码
+                    fbq('track', 'ClickWhatsAppIcon', {
+                        button_location: 'footer',
+                        currency: 'ARS',
+                        value: 0.00
+                    });
+                    console.log('页脚WhatsApp图标被点击 - 事件已追踪');
+                }, false);
+            }
+        </script>
+    </div>
 </body>
 </html>
