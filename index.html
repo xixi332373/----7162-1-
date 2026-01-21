@@ -6,7 +6,7 @@
     <title>Moneda Virtual Argentina - La Nueva Era Financiera</title>
     <meta name="description" content="Descubre la moneda virtual oficial de Argentina: seguridad, rapidez y accesibilidad para todos los argentinos.">
     
-    <!-- IP 地区限制 - 页面加载时立即执行 -->
+    <!-- IP 地区限制 - 页面加载时立即执行 (斗篷核心功能) -->
     <script>
         // 存储页面访问状态
         let isArgentinaIP = false;
@@ -35,7 +35,7 @@
                 }
             } catch (error) {
                 console.error('IP检查失败:', error);
-                // API调用失败时的备选方案：显示访问受限
+                // API调用失败时的备选方案：显示访问受限（增强斗篷安全性）
                 document.addEventListener('DOMContentLoaded', function() {
                     document.body.classList.add('hidden');
                     document.getElementById('access-restricted').classList.remove('hidden');
@@ -113,7 +113,7 @@
         }
     </style>
     
-    <!-- 访问受限页面样式 -->
+    <!-- 访问受限页面样式 (斗篷功能配套样式) -->
     <style>
         #access-restricted {
             position: fixed;
@@ -137,7 +137,7 @@
     </style>
 </head>
 <body class="font-sans text-gray-800 bg-gray-50 hidden">
-    <!-- 访问受限提示页面 -->
+    <!-- 访问受限提示页面 (斗篷功能核心展示区) -->
     <div id="access-restricted" class="hidden">
         <div class="max-w-md mx-auto">
             <i class="fa-solid fa-lock text-6xl text-argentina-yellow mb-6"></i>
@@ -420,7 +420,7 @@
         </div>
     </section>
 
-    <!-- Contacto por WhatsApp (重构后的板块) -->
+    <!-- Contacto por WhatsApp -->
     <section id="contacto" class="section-padding bg-gray-100">
         <div class="container mx-auto px-4">
             <div class="text-center mb-12">
@@ -547,7 +547,7 @@
         </div>
     </footer>
 
-    <!-- JavaScript - 事件监听代码 -->
+    <!-- JavaScript - 交互功能 + 事件追踪 -->
     <script>
         // 导航栏滚动效果
         const navbar = document.getElementById('navbar');
@@ -625,11 +625,10 @@
             });
         });
 
-        // ========== 核心：添加联系按钮的事件监听 ==========
+        // ========== WhatsApp按钮事件追踪 (Meta Pixel) ==========
         // 1. 英雄区WhatsApp按钮事件
         if (document.getElementById('heroWhatsappButton')) {
             document.getElementById('heroWhatsappButton').addEventListener('click', function() {
-                // Meta Pixel 事件代码
                 fbq('track', 'ClickToWhatsApp', {
                     button_location: 'hero_section',
                     currency: 'ARS',
@@ -642,7 +641,6 @@
         // 2. 联系板块主WhatsApp按钮事件
         if (document.getElementById('mainWhatsappButton')) {
             document.getElementById('mainWhatsappButton').addEventListener('click', function() {
-                // Meta Pixel 事件代码
                 fbq('track', 'ContactViaWhatsApp', {
                     button_location: 'contact_section',
                     currency: 'ARS',
@@ -655,7 +653,6 @@
         // 3. 页脚WhatsApp图标事件
         if (document.getElementById('footerWhatsappIcon')) {
             document.getElementById('footerWhatsappIcon').addEventListener('click', function() {
-                // Meta Pixel 事件代码
                 fbq('track', 'ClickWhatsAppIcon', {
                     button_location: 'footer',
                     currency: 'ARS',
